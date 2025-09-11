@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del \"C:\\Users\\Hudini\\PythonProjects\\Agent_AI_News\\ai_news\\ai_news\\src\\scrapers.py\")",
+      "Bash(tree:*)",
+      "WebFetch(domain:openai.com)",
+      "Bash(python manage.py scrape_news:*)",
+      "Bash(python test:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
