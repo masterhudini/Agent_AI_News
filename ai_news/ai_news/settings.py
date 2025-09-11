@@ -15,6 +15,11 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file in development
+from ai_news.core.utils import load_env_file, is_development
+if is_development():
+    load_env_file()
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -122,23 +127,36 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AI News Scraper Configuration - Python 3.12 & LangChain Optimized
-QDRANT_HOST = 'localhost'
-QDRANT_PORT = 6333
+# Initialize dependency injection container and configuration
+from ai_news.core.config import get_app_config
+from ai_news.core.containers import container
 
-# OpenAI Configuration (Required - no fallbacks)
-OPENAI_API_KEY = None  # REQUIRED: Set this to your OpenAI API key
+# Wire the dependency injection container
+container.wire(modules=[__name__])
 
-# LangChain Configuration  
-LANGCHAIN_TRACING_V2 = True  # Enable LangSmith tracing
-LANGCHAIN_API_KEY = None  # Optional: Set this to your LangSmith API key for monitoring
-LANGCHAIN_PROJECT = "ai-news-scraper"  # Project name for LangSmith tracking
+# Get configuration
+APP_CONFIG = get_app_config()
 
-# Default Models (OpenAI only)
-DEFAULT_LLM_MODEL = "gpt-4o-mini"  # Default language model
-DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small"  # Default embedding model
-DEFAULT_TEMPERATURE = 0.7  # Default temperature for LLM calls
-DEFAULT_MAX_TOKENS = 2000  # Default max tokens
+# AI News Scraper Configuration - Using centralized config management
+QDRANT_HOST = APP_CONFIG.qdrant_host
+QDRANT_PORT = APP_CONFIG.qdrant_port
+
+# OpenAI Configuration (from config management)
+OPENAI_API_KEY = APP_CONFIG.openai_api_key
+
+# LangChain Configuration (from config management)
+LANGCHAIN_TRACING_V2 = APP_CONFIG.langchain_tracing_v2
+LANGCHAIN_API_KEY = APP_CONFIG.langchain_api_key
+LANGCHAIN_PROJECT = APP_CONFIG.langchain_project
+
+# Default Models (from config management)
+DEFAULT_LLM_MODEL = APP_CONFIG.default_llm_model
+DEFAULT_EMBEDDING_MODEL = APP_CONFIG.default_embedding_model
+DEFAULT_TEMPERATURE = APP_CONFIG.default_temperature
+DEFAULT_MAX_TOKENS = APP_CONFIG.default_max_tokens
+
+# Environment info
+ENVIRONMENT = APP_CONFIG.environment
 
 # Logging Configuration
 LOGGING = {

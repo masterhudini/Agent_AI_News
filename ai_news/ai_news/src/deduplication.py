@@ -44,38 +44,67 @@ class VectorDeduplicator:
     """
     
     def __init__(self, 
+                 qdrant_url: str = None,
+                 qdrant_api_key: str = None,
                  qdrant_host: str = "localhost",
                  qdrant_port: int = 6333,
                  collection_name: str = "news_articles",
                  similarity_threshold: float = 0.85,
-                 model: str = "text-embedding-3-small"):
+                 model: str = "text-embedding-3-small",
+                 qdrant_client=None,
+                 embeddings=None):
         """
         Inicjalizuje VectorDeduplicator z konfiguracją Qdrant i OpenAI.
         
         Ustala połączenie z Qdrant vector database, konfiguruje OpenAI embeddings
         i przygotowuje text splitter do przetwarzania długich dokumentów.
+        Supports dependency injection for better testability.
         
         Args:
-            qdrant_host: Adres serwera Qdrant (default localhost)
-            qdrant_port: Port serwera Qdrant (default 6333)
+            qdrant_url: Cloud Qdrant URL (np. https://xyz.gcp.cloud.qdrant.io)
+            qdrant_api_key: API key dla cloud Qdrant (wymagane dla cloud)
+            qdrant_host: Adres serwera Qdrant dla local (default localhost)
+            qdrant_port: Port serwera Qdrant dla local (default 6333)
             collection_name: Nazwa kolekcji w Qdrant (default "news_articles")
             similarity_threshold: Próg podobieństwa 0.0-1.0 (default 0.85 = 85%)
             model: Model OpenAI embeddings (default "text-embedding-3-small")
+            qdrant_client: Injected Qdrant client (optional)
+            embeddings: Injected OpenAI embeddings (optional)
             
         Note:
             Automatically tworzy kolekcję Qdrant jeśli nie istnieje.
-            Wymaga OPENAI_API_KEY w Django settings.
+            Uses injected dependencies or creates new instances.
         """
-        # Połączenie z Qdrant vector database
-        self.client = QdrantClient(host=qdrant_host, port=qdrant_port)
+        # Use injected client or create new one
+        if qdrant_client is not None:
+            self.client = qdrant_client
+        else:
+            # Prioritize cloud URL over local host/port
+            if qdrant_url:
+                # Cloud Qdrant connection
+                self.client = QdrantClient(
+                    url=qdrant_url,
+                    api_key=qdrant_api_key
+                )
+                logger.info(f"Connected to cloud Qdrant: {qdrant_url}")
+            else:
+                # Local Qdrant connection
+                self.client = QdrantClient(host=qdrant_host, port=qdrant_port)
+                logger.info(f"Connected to local Qdrant: {qdrant_host}:{qdrant_port}")
+            
         self.collection_name = collection_name
         self.similarity_threshold = similarity_threshold
         
-        # Konfiguracja OpenAI embeddings - tylko OpenAI, bez fallbacks
-        self.embeddings = OpenAIEmbeddings(
-            model=model,
-            api_key=getattr(settings, 'OPENAI_API_KEY', None)
-        )
+        # Use injected embeddings or create new ones
+        if embeddings is not None:
+            self.embeddings = embeddings
+        else:
+            from ..core.config import get_app_config
+            config = get_app_config()
+            self.embeddings = OpenAIEmbeddings(
+                model=model,
+                api_key=config.openai_api_key
+            )
         self.embedding_size = 1536  # Rozmiar wektorów dla text-embedding-3-small
         
         # Text splitter dla długich dokumentów - intelligent chunking
@@ -375,9 +404,30 @@ class ContentHashDeduplicator:
 class DuplicationService:
     """Streamlined duplication service using only LangChain and OpenAI"""
     
-    def __init__(self, model: str = "text-embedding-3-small"):
-        self.vector_deduplicator = VectorDeduplicator(model=model)
-        self.hash_deduplicator = ContentHashDeduplicator()
+    def __init__(self, model: str = "text-embedding-3-small", 
+                 qdrant_url: str = None, 
+                 qdrant_api_key: str = None,
+                 qdrant_host: str = "localhost",
+                 qdrant_port: int = 6333,
+                 collection_name: str = "news_articles",
+                 vector_deduplicator=None, 
+                 hash_deduplicator=None):
+        if vector_deduplicator is not None:
+            self.vector_deduplicator = vector_deduplicator
+        else:
+            self.vector_deduplicator = VectorDeduplicator(
+                model=model,
+                qdrant_url=qdrant_url,
+                qdrant_api_key=qdrant_api_key,
+                qdrant_host=qdrant_host,
+                qdrant_port=qdrant_port,
+                collection_name=collection_name
+            )
+            
+        if hash_deduplicator is not None:
+            self.hash_deduplicator = hash_deduplicator
+        else:
+            self.hash_deduplicator = ContentHashDeduplicator()
     
     def process_article_for_duplicates(self, article) -> bool:
         """Process article for both hash and semantic duplicates"""

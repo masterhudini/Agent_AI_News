@@ -18,7 +18,7 @@ langsmith==0.1.106
 # Vector databases and embeddings
 qdrant-client==1.11.1
 sentence-transformers==3.0.1
-faiss-cpu==1.8.0.post1
+faiss-cpu==1.12.0
 
 # ML/AI libraries
 transformers==4.44.2
@@ -29,3 +29,10 @@ openai==1.44.1
 # Additional dependencies
 pydantic==2.8.2
 pydantic-core==2.20.1
+
+# Dependency injection
+dependency-injector==4.42.0
+
+# GCP dependencies  
+google-cloud-secret-manager==2.20.2
+google-auth==2.29.0

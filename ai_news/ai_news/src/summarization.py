@@ -73,10 +73,12 @@ class LangChainSummarizer:
         
         # Inicjalizujemy OpenAI LLM - wyłącznie OpenAI, bez fallbacks
         # GPT-4o-mini oferuje najlepszy balance cost/performance dla summarization
+        from ..core.config import get_app_config
+        config = get_app_config()
         self.llm = ChatOpenAI(
             model=model,                    # Default: gpt-4o-mini (cost-effective)
             temperature=temperature,        # 0.7 = balance creativity vs consistency
-            api_key=getattr(settings, 'OPENAI_API_KEY', None)  # Django settings integration
+            api_key=config.openai_api_key  # Configuration management integration
         )
         
         # Text splitter dla długich dokumentów - hierarchical splitting

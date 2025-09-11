@@ -52,12 +52,15 @@ class NewsOrchestrationService:
     def __init__(self, 
                  embedding_model: str = "text-embedding-3-small",
                  llm_model: str = "gpt-4o-mini",
-                 temperature: float = 0.7):
+                 temperature: float = 0.7,
+                 deduplication_service=None,
+                 blog_summary_service=None,
+                 langchain_orchestrator=None):
         """
-        Inicjalizuje NewsOrchestrationService z wszystkimi required components.
+        Inicjalizuje NewsOrchestrationService z dependency injection support.
         
         Creates unified service integrating scraping, deduplication, i AI capabilities.
-        All sub-services są configured z consistent model parameters.
+        Supports both traditional initialization and dependency injection.
         
         Args:
             embedding_model: OpenAI embedding model dla semantic deduplication
@@ -66,6 +69,9 @@ class NewsOrchestrationService:
                       (default "gpt-4o-mini" - balanced performance/cost)
             temperature: AI creativity level 0.0-1.0 (default 0.7)
                         Balanced setting dla engaging ale consistent content
+            deduplication_service: Injected deduplication service (optional)
+            blog_summary_service: Injected blog summary service (optional)
+            langchain_orchestrator: Injected LangChain orchestrator (optional)
         
         Initialized Services:
         - DuplicationService: Uses embedding_model dla vector similarity
@@ -73,21 +79,29 @@ class NewsOrchestrationService:
         - LangChainNewsOrchestrator: Comprehensive AI operations
         
         Architecture Notes:
+        - Supports dependency injection for testability
+        - Falls back to direct instantiation if no dependencies injected
         - Only LangChain services - no fallback models dla consistency
-        - Consistent model configuration across all AI components
-        - Lazy loading - services created on first access
         """
         
-        # Import all required services - centralized dependency management
-        from .deduplication import DuplicationService
-        from .summarization import BlogSummaryService
-        from .langchain_chains import LangChainNewsOrchestrator
-        
-        # Initialize core services z consistent configuration
-        # Only LangChain services - no fallback models dla consistency
-        self.duplication_service = DuplicationService(model=embedding_model)  # Semantic deduplication
-        self.blog_summary_service = BlogSummaryService(model=llm_model, temperature=temperature)  # AI summaries
-        self.langchain_orchestrator = LangChainNewsOrchestrator(model_type="openai")  # Advanced AI ops
+        # Use injected dependencies or create new instances
+        if deduplication_service is not None:
+            self.duplication_service = deduplication_service
+        else:
+            from .deduplication import DuplicationService
+            self.duplication_service = DuplicationService(model=embedding_model)
+            
+        if blog_summary_service is not None:
+            self.blog_summary_service = blog_summary_service
+        else:
+            from .summarization import BlogSummaryService
+            self.blog_summary_service = BlogSummaryService(model=llm_model, temperature=temperature)
+            
+        if langchain_orchestrator is not None:
+            self.langchain_orchestrator = langchain_orchestrator
+        else:
+            from .langchain_chains import LangChainNewsOrchestrator
+            self.langchain_orchestrator = LangChainNewsOrchestrator(model_type="openai")
     
     def scrape_all_sources(self) -> Dict[str, int]:
         """

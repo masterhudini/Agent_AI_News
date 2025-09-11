@@ -6,7 +6,8 @@
       "WebFetch(domain:openai.com)",
       "Bash(python manage.py scrape_news:*)",
       "Bash(python test:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

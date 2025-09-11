@@ -1,5 +1,5 @@
 """
-Tests for news service orchestration functionality
+Tests for news service orchestration functionality using dependency injection.
 """
 
 import unittest
@@ -8,24 +8,30 @@ from datetime import datetime, timedelta
 
 from ai_news.src.news_service import NewsOrchestrationService
 from ai_news.tests.base import BaseTestCase
+from ai_news.core.test_containers import test_container
+from ai_news.core.config import reset_config
 
 
 class TestNewsOrchestrationService(BaseTestCase):
-    """Test main news orchestration service"""
+    """Test main news orchestration service with dependency injection."""
     
     def setUp(self):
         super().setUp()
         
-        # Mock all dependencies
-        self.mock_deduplication_service = Mock()
-        self.mock_blog_summary_service = Mock()
-        self.mock_langchain_orchestrator = Mock()
+        # Reset configuration to clean state for testing
+        reset_config()
         
-        with patch('ai_news.src.news_service.DuplicationService', return_value=self.mock_deduplication_service), \
-             patch('ai_news.src.news_service.BlogSummaryService', return_value=self.mock_blog_summary_service), \
-             patch('ai_news.src.news_service.LangChainNewsOrchestrator', return_value=self.mock_langchain_orchestrator):
-            
-            self.service = NewsOrchestrationService()
+        # Use test container with mocked dependencies
+        self.mock_deduplication_service = test_container.deduplication_service()
+        self.mock_blog_summary_service = test_container.blog_summary_service()
+        self.mock_langchain_orchestrator = test_container.langchain_orchestrator()
+        
+        # Create service with injected mocked dependencies
+        self.service = NewsOrchestrationService(
+            deduplication_service=self.mock_deduplication_service,
+            blog_summary_service=self.mock_blog_summary_service,
+            langchain_orchestrator=self.mock_langchain_orchestrator
+        )
     
     def test_service_initialization(self):
         """Test service initialization with parameters"""

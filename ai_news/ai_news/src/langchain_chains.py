@@ -142,8 +142,10 @@ class NewsAnalyzer:
             Używa wyłącznie OpenAI - no fallback models dla consistency
         """
         # Initialize OpenAI LLM - exclusively OpenAI, no fallbacks dla consistency
+        from ..core.config import get_app_config
+        config = get_app_config()
         self.llm = ChatOpenAI(
-            api_key=getattr(settings, 'OPENAI_API_KEY', None),  # Django settings integration
+            api_key=config.openai_api_key,  # Configuration management integration
             model=model,            # Default: gpt-4o-mini (cost-effective)
             temperature=temperature  # Low temp dla factual, consistent analysis
         )
@@ -292,8 +294,10 @@ class BlogGenerator:
         - Structured output maintains consistency despite creativity
         """
         # Initialize OpenAI LLM - exclusively OpenAI dla consistent creative output
+        from ..core.config import get_app_config
+        config = get_app_config()
         self.llm = ChatOpenAI(
-            api_key=getattr(settings, 'OPENAI_API_KEY', None),  # Django settings
+            api_key=config.openai_api_key,  # Configuration management
             model=model,            # Default: gpt-4o-mini
             temperature=temperature  # 0.7 dla creative, engaging content
         )
@@ -462,8 +466,10 @@ class NewsProcessingAgent:
         - System prompt: Clear role definition
         """
         # Initialize LLM dla agent reasoning
+        from ..core.config import get_app_config
+        config = get_app_config()
         self.llm = ChatOpenAI(
-            api_key=getattr(settings, 'OPENAI_API_KEY', None),
+            api_key=config.openai_api_key,
             model=model,            # Default: gpt-4o-mini
             temperature=0.5         # Balanced reasoning vs consistency
         )
