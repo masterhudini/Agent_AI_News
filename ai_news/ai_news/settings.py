@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,10 +26,18 @@ if is_development():
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4)7_2%eb%0g3o4oixa5=+g_&&$78yn@&hsz3_m^qt-%itak$cf'
+# Load from environment variable with secure fallback
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    if os.environ.get('ENVIRONMENT') == 'development':
+        # Development fallback - generate warning
+        SECRET_KEY = 'django-insecure-dev-key-change-in-production'
+        print("WARNING: Using development SECRET_KEY. Set DJANGO_SECRET_KEY environment variable for production!")
+    else:
+        raise ValueError("DJANGO_SECRET_KEY environment variable must be set for production!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = []
 
@@ -43,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ai_news',
+    'ai_news.src',
 ]
 
 MIDDLEWARE = [

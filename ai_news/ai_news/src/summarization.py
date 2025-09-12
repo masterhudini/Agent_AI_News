@@ -214,46 +214,76 @@ class BlogSummarizer(LangChainSummarizer):
         # Używany gdy mamy mniejszą liczbę artykułów (< 5) i wszystkie mieszczą się w context
         self.blog_prompt = PromptTemplate(
             input_variables=["topic", "articles"],
-            template="""You are an expert tech journalist and blogger. Create a comprehensive blog summary for the following {topic} articles.
+            template="""You are an expert AI/tech journalist focused on concrete technical developments. Create a comprehensive blog summary for the following {topic} articles.
 
 Requirements:
-1. Create a compelling title
-2. Write 3-4 paragraphs summarizing the key trends and developments  
-3. Highlight the most important stories
-4. Include actionable insights where relevant
-5. Keep the tone professional but engaging
-6. Length: 400-600 words
+1. Create a compelling, technical title that mentions specific tools/technologies
+2. Focus on CONCRETE developments: new tools, specific model capabilities, technical breakthroughs
+3. Mention specific companies, model names, version numbers, performance metrics
+4. Include technical details like parameter counts, benchmark scores, architectural improvements
+5. Highlight actionable information: new APIs, available tools, deployment methods
+6. Professional but engaging tone, avoid general statements
+7. Length: 500-700 words
+
+Examples of concrete content to prioritize:
+- "NotebookLM now supports 50+ file formats and real-time collaboration"
+- "GPT-4o achieves 89.2% on MMLU benchmark, 15% improvement over previous version"
+- "New reinforcement learning algorithm reduces training time by 40%"
+- "Hugging Face releases AutoTrain 2.0 with one-click fine-tuning for 100+ model architectures"
+- "Google's Gemini API adds function calling with 99.7% accuracy"
 
 Articles to summarize:
 {articles}
 
 Please format the response as:
-TITLE: [Your title here]
+TITLE: [Specific technical title with tool/company names]
 
 SUMMARY:
-[Your summary here]"""
+[Concrete technical summary with specific details, metrics, and actionable information]"""
         )
         
         # Map prompt - pierwszy stage Map-Reduce pattern
         # Ekstraktuje kluczowe insights z pojedynczych artykułów parallel
         self.map_prompt = PromptTemplate(
             input_variables=["text"],
-            template="Extract key insights and important information from this news article:\n{text}\n\nKey insights:"
+            template="""Extract CONCRETE technical information from this news article. Focus on specific details:
+
+Article: {text}
+
+Extract and list:
+1. Specific tools, models, or technologies mentioned (with version numbers if available)
+2. Performance metrics, benchmark scores, or quantified improvements
+3. Company/organization names and their specific contributions
+4. Technical capabilities, APIs, or features launched
+5. Actionable information developers/researchers can use
+
+Format as bullet points with specific details:"""
         )
         
         # Reduce prompt - drugi stage Map-Reduce pattern
         # Kombinuje wszystkie insights w final cohesive blog post
         self.reduce_prompt = PromptTemplate(
             input_variables=["text", "topic"],
-            template="""Create a comprehensive blog post about {topic} based on these article insights:
+            template="""Create a comprehensive technical blog post about {topic} from these specific insights:
 
 {text}
 
+Requirements for final blog post:
+1. Technical title mentioning key technologies/companies
+2. Lead with most impactful technical development
+3. Group similar technologies/developments together
+4. Include specific metrics, version numbers, performance improvements
+5. Highlight actionable tools and APIs readers can use
+6. Mention specific use cases or implementation details
+7. 500-700 words with concrete information
+
+Focus on what developers and researchers can actually DO with these developments.
+
 Format as:
-TITLE: [Compelling title]
+TITLE: [Technical title with specific tool/company names]
 
 SUMMARY:
-[Well-structured blog summary with key insights and trends]"""
+[Technical blog post with specific tools, metrics, and actionable information]"""
         )
     
     def summarize(self, articles: List, topic: str = "AI News") -> Optional[str]:

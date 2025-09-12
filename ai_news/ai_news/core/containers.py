@@ -37,6 +37,8 @@ class ApplicationContainer(containers.DeclarativeContainer):
     # Core services
     vector_deduplicator = providers.Singleton(
         "ai_news.src.deduplication.VectorDeduplicator",
+        qdrant_url=config.provided.qdrant_url,
+        qdrant_api_key=config.provided.qdrant_api_key,
         qdrant_host=config.provided.qdrant_host,
         qdrant_port=config.provided.qdrant_port,
         collection_name=config.provided.qdrant_collection_name,

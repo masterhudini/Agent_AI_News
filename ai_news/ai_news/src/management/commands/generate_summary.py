@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand, CommandError
-from ai_news.src.news_service import NewsOrchestrationService
 
 
 class Command(BaseCommand):
@@ -21,7 +20,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        service = NewsOrchestrationService()
+        # Initialize NewsOrchestrationService using pipeline_runner
+        # This ensures proper environment loading and dependency injection
+        from ai_news.src.pipeline_runner import PipelineRunner
+        runner = PipelineRunner()
+        service = runner.container.news_orchestration_service()
+        
         summary_type = options['type']
         topic = options['topic']
         

@@ -101,9 +101,13 @@ class VectorDeduplicator:
         else:
             from ..core.config import get_app_config
             config = get_app_config()
+            import os
+            # Set OpenAI API key directly in environment to avoid parameter conflicts
+            os.environ["OPENAI_API_KEY"] = config.openai_api_key
+            
+            # Initialize without passing api_key parameter to avoid version conflicts
             self.embeddings = OpenAIEmbeddings(
-                model=model,
-                api_key=config.openai_api_key
+                model=model
             )
         self.embedding_size = 1536  # Rozmiar wektorów dla text-embedding-3-small
         
@@ -121,7 +125,7 @@ class VectorDeduplicator:
         self.vector_store = QdrantVectorStore(
             client=self.client,
             collection_name=self.collection_name,
-            embeddings=self.embeddings
+            embedding=self.embeddings
         )
     
     def _ensure_collection_exists(self):
@@ -436,14 +440,17 @@ class DuplicationService:
         hash_duplicate = self.hash_deduplicator.find_hash_duplicates(article)
         if hash_duplicate:
             self.hash_deduplicator.mark_as_hash_duplicate(article, hash_duplicate)
+            logger.info(f"Article '{article.title[:60]}...' rejected - exact match duplicate with ID {hash_duplicate.id}")
             return True
         
         # Then check for semantic duplicates using LangChain + OpenAI
         if self.vector_deduplicator.check_and_mark_duplicates(article):
+            logger.info(f"Article '{article.title[:60]}...' rejected - semantic similarity duplicate")
             return True
         
         # If no duplicates found, add to vector index for future comparisons
         self.vector_deduplicator.add_article_to_index(article)
+        logger.info(f"Article '{article.title[:60]}...' accepted as unique")
         return False
     
     def get_unique_articles(self, limit: Optional[int] = None) -> List:

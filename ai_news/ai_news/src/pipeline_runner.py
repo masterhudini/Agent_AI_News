@@ -113,8 +113,7 @@ class AppContainer(containers.DeclarativeContainer):
         
         return BlogSummaryService(
             model=AppContainer.config.llm_model(),
-            temperature=float(AppContainer.config.temperature()),
-            max_tokens=int(AppContainer.config.max_tokens())
+            temperature=float(AppContainer.config.temperature())
         )
     
     @providers.Singleton
@@ -138,41 +137,18 @@ class AppContainer(containers.DeclarativeContainer):
         
         return LangChainNewsOrchestrator(
             model_type="openai",
-            llm_model=AppContainer.config.llm_model(),
-            embedding_model=AppContainer.config.embedding_model(),
-            temperature=float(AppContainer.config.temperature())
+            model=AppContainer.config.llm_model()
         )
     
-    @providers.Factory
-    def news_orchestration_service(
-        duplication_service=Provide[duplication_service],
-        blog_summary_service=Provide[blog_summary_service], 
-        langchain_orchestrator=Provide[langchain_orchestrator]
-    ):
-        """
-        Creates fully configured NewsOrchestrationService z injected dependencies.
-        
-        Factory provider creating main orchestration service z all dependencies
-        properly injected i configured based na environment variables.
-        
-        Args:
-            duplication_service: Injected DuplicationService instance
-            blog_summary_service: Injected BlogSummaryService instance  
-            langchain_orchestrator: Injected LangChainNewsOrchestrator instance
-            
-        Returns:
-            NewsOrchestrationService: Fully configured main service
-        """
-        from .news_service import NewsOrchestrationService
-        
-        return NewsOrchestrationService(
-            embedding_model=AppContainer.config.embedding_model(),
-            llm_model=AppContainer.config.llm_model(), 
-            temperature=float(AppContainer.config.temperature()),
-            deduplication_service=duplication_service,
-            blog_summary_service=blog_summary_service,
-            langchain_orchestrator=langchain_orchestrator
-        )
+    news_orchestration_service = providers.Factory(
+        "ai_news.src.news_service.NewsOrchestrationService",
+        embedding_model=config.embedding_model,
+        llm_model=config.llm_model,
+        temperature=config.temperature,
+        deduplication_service=duplication_service,
+        blog_summary_service=blog_summary_service,
+        langchain_orchestrator=langchain_orchestrator
+    )
 
 
 class PipelineRunner:
@@ -221,6 +197,15 @@ class PipelineRunner:
             ValueError: If required environment variables are missing
             ConnectionError: If external services are unreachable
         """
+        # SECURITY: Run comprehensive security validation
+        from .security import SecurityAuditor
+        try:
+            SecurityAuditor.validate_environment()
+            logger.info("Security validation passed")
+        except Exception as e:
+            logger.error(f"Security validation failed: {e}")
+            raise
+        
         # Check critical API keys
         if not os.getenv("OPENAI_API_KEY"):
             raise ValueError("OPENAI_API_KEY jest required dla AI operations")

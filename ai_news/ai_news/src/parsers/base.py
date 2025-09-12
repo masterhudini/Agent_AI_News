@@ -148,6 +148,7 @@ class BaseScraper(ABC):
         Obsługuje różne formaty dat występujące w RSS feedach i API:
         - ISO format z 'Z' (UTC): "2023-12-01T10:30:00Z"  
         - ISO format bez timezone: "2023-12-01T10:30:00"
+        - RFC 2822 format (RSS): "Tue, 26 Aug 2024 15:21:19 +0000"
         - Inne formaty: fallback do current time
         
         Wykorzystywana przez:
@@ -177,8 +178,13 @@ class BaseScraper(ABC):
             return datetime.fromisoformat(date_str)
             
         except (ValueError, AttributeError):
-            # Logujemy warning ale nie crashujemy - production stability
-            logger.warning(f"Could not parse date: {date_str}")
-            
-            # Fallback do current time - artykuł będzie traktowany jako "fresh"
-            return datetime.now()
+            # Próbujemy RFC 2822 format (używany w RSS feeds)
+            try:
+                from email.utils import parsedate_to_datetime
+                return parsedate_to_datetime(date_str)
+            except (ValueError, TypeError):
+                # Logujemy warning ale nie crashujemy - production stability
+                logger.warning(f"Could not parse date: {date_str}")
+                
+                # Fallback do current time - artykuł będzie traktowany jako "fresh"
+                return datetime.now()

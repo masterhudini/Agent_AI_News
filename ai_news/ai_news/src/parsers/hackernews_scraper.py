@@ -1,7 +1,9 @@
 from typing import List
 from datetime import datetime
 import logging
+import time
 from .base import BaseScraper, NewsArticleData
+from ..security import RateLimiter
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +85,9 @@ class HackerNewsScraper(BaseScraper):
         # Firebase API configuration
         self.api_url = "https://hacker-news.firebaseio.com/v0"  # Official API endpoint
         self.max_stories = 30  # Balance coverage z API politeness
+        
+        # Rate limiting dla API protection (10 requests per minute)
+        self.rate_limiter = RateLimiter(max_requests=10, time_window=60)
     
     def scrape(self) -> List[NewsArticleData]:
         """
@@ -138,6 +143,15 @@ class HackerNewsScraper(BaseScraper):
             logger.info(f"Processing {len(story_ids)} individual stories...")
             for story_id in story_ids:
                 try:
+                    # SECURITY: Rate limiting protection
+                    if not self.rate_limiter.is_allowed():
+                        wait_time = self.rate_limiter.wait_time()
+                        logger.warning(f"Rate limit reached, waiting {wait_time:.1f}s before next request")
+                        time.sleep(wait_time)
+                    
+                    # Small delay between requests dla API politeness
+                    time.sleep(0.1)  # 100ms delay
+                    
                     # Fetch individual story data
                     story_response = self.session.get(
                         f"{self.api_url}/item/{story_id}.json",

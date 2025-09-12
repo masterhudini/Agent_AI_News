@@ -3,6 +3,9 @@ import logging
 from datetime import datetime
 from django.conf import settings
 
+# Security imports
+from .security import InputSanitizer, SecurityError, SecurityAuditor
+
 # LangChain imports - updated for Python 3.12 and latest versions
 from langchain.chains.llm import LLMChain
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
@@ -215,11 +218,32 @@ Please analyze the article and provide:
             Content limited to 2000 chars dla token efficiency
         """
         try:
-            # Invoke LCEL analysis chain z structured input
+            # SECURITY: Sanitize inputs before sending to LLM
+            sanitized_title = InputSanitizer.sanitize_text_for_llm(
+                article.title, max_length=500, strict=False
+            )
+            sanitized_content = InputSanitizer.sanitize_text_for_llm(
+                article.content[:2000], max_length=2000, strict=False
+            )
+            sanitized_source = InputSanitizer.sanitize_text_for_llm(
+                article.source, max_length=200, strict=False
+            )
+            
+            # Log security event if content was modified during sanitization
+            if (sanitized_title != article.title or 
+                sanitized_content != article.content[:2000] or 
+                sanitized_source != article.source):
+                SecurityAuditor.log_security_event(
+                    "input_sanitization", 
+                    {"article_id": getattr(article, 'id', 'unknown'), "source": article.source},
+                    "info"
+                )
+            
+            # Invoke LCEL analysis chain z sanitized input
             result = self.analysis_chain.invoke({
-                "title": article.title,
-                "content": article.content[:2000],  # Limit dla token optimization
-                "source": article.source
+                "title": sanitized_title,
+                "content": sanitized_content,
+                "source": sanitized_source
             })
             return result
         except Exception as e:
@@ -310,19 +334,32 @@ class BlogGenerator:
         # Includes target audience customization dla appropriate tone
         self.blog_prompt = PromptTemplate(
             input_variables=["topic", "articles_summary", "target_audience"],
-            template="""Create a comprehensive blog post about {topic} for {target_audience}.
+            template="""Create a comprehensive technical blog post about {topic} for {target_audience}.
 
 Based on these article summaries:
 {articles_summary}
 
-Generate a well-structured blog post with:
-1. A compelling title that captures attention
-2. An engaging introduction that hooks the reader
-3. Main content with key insights, trends, and analysis
-4. A conclusion with key takeaways and future outlook
-5. Relevant tags for categorization
+Generate a well-structured blog post with CONCRETE technical information:
+1. Technical title mentioning specific tools/technologies/companies
+2. Introduction highlighting the most significant technical breakthrough
+3. Main content with:
+   - Specific model names, version numbers, and performance metrics
+   - Concrete capabilities and technical specifications
+   - Available APIs, tools, and implementation details
+   - Real-world use cases and deployment methods
+   - Quantified improvements (speed, accuracy, cost, etc.)
+4. Conclusion with actionable next steps for developers/researchers
+5. Technical tags (model names, companies, specific technologies)
 
-Make it informative, engaging, and professional. Length should be 800-1200 words.
+Focus on what practitioners can actually DO with these developments. Include specific numbers, benchmarks, and technical details.
+
+Examples of good content:
+- "OpenAI's GPT-4o achieves 88.7% on MMLU, supports 128K context window"
+- "Hugging Face's Transformers 4.35 adds native ONNX export for 200+ models"
+- "Meta's Code Llama 34B shows 67% pass@1 on HumanEval, available via API"
+- "Google's Gemini Pro API now supports function calling with 99.2% reliability"
+
+Length: 900-1300 words with technical depth.
 
 {format_instructions}""",
             partial_variables={"format_instructions": self.output_parser.get_format_instructions()}
@@ -477,13 +514,15 @@ class NewsProcessingAgent:
         # Create specialized tools using modern @tool decorator approach
         self.tools = self._create_tools()
         
-        # Define agent system prompt - clear role i capabilities
-        system_message = SystemMessage(
-            content="You are a helpful assistant for analyzing news data. Use the available tools to answer questions about news articles, statistics, and trends."
-        )
+        # Create prompt template for agent
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", "You are a helpful assistant for analyzing news data. Use the available tools to answer questions about news articles, statistics, and trends."),
+            ("user", "{input}"),
+            ("assistant", "{agent_scratchpad}")
+        ])
         
         # Create OpenAI Functions agent - most reliable dla tool calling
-        self.agent = create_openai_functions_agent(self.llm, self.tools, system_message)
+        self.agent = create_openai_functions_agent(self.llm, self.tools, prompt)
         
         # AgentExecutor orchestrates conversation i tool execution
         self.agent_executor = AgentExecutor(agent=self.agent, tools=self.tools, verbose=True)

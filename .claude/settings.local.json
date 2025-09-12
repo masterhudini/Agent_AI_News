@@ -7,7 +7,9 @@
       "Bash(python manage.py scrape_news:*)",
       "Bash(python test:*)",
       "Bash(find:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(set)"
     ],
     "deny": [],
     "ask": []

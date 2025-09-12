@@ -1,7 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="97431905-4862-467f-9bfe-b3887cbfe1a2" name="Changes" comment="" />
+    <list default="true" id="97431905-4862-467f-9bfe-b3887cbfe1a2" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/core/containers.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/core/containers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/deduplication.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/deduplication.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/langchain_chains.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/langchain_chains.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/management/commands/generate_summary.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/management/commands/generate_summary.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/management/commands/scrape_news.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/management/commands/scrape_news.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/news_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/news_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/parsers/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/parsers/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/parsers/hackernews_scraper.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/parsers/hackernews_scraper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/pipeline_runner.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/pipeline_runner.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/summarization.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/summarization.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -10,9 +29,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="32WCA5KTJTIRhJO4z82ASW95ekQ" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -22,6 +41,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "master"
   }
 }]]></component>

@@ -132,10 +132,11 @@ class Command(BaseCommand):
         - Error messages dla troubleshooting
         - Summary information dla generated content
         """
-        # Initialize NewsOrchestrationService using dependency injection
-        # Provides unified API dla wszystkich scraping i AI operations
-        from ai_news.core.containers import container
-        service = container.news_orchestration_service()
+        # Initialize NewsOrchestrationService using pipeline_runner
+        # This ensures proper environment loading and dependency injection
+        from ai_news.src.pipeline_runner import PipelineRunner
+        runner = PipelineRunner()
+        service = runner.container.news_orchestration_service()
         
         # OPERATION MODE 1: List Available Sources
         if options['list_sources']:

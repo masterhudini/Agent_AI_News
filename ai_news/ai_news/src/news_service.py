@@ -4,6 +4,9 @@ from datetime import datetime
 from django.utils import timezone
 from django.db import transaction
 
+# Security imports
+from .security import InputSanitizer, SecurityError, SecurityAuditor
+
 logger = logging.getLogger(__name__)
 
 
@@ -215,23 +218,45 @@ class NewsOrchestrationService:
             articles_data = scraper.scrape()
             
             new_articles_count = 0
+            url_duplicates = 0
+            content_duplicates = 0
+            
+            logger.info(f"Processing {len(articles_data)} articles from {scraper_name}")
             
             # Process każdy article individually z error isolation
             for article_data in articles_data:
                 try:
+                    # SECURITY: Validate and sanitize article data before processing
+                    try:
+                        sanitized_data = InputSanitizer.validate_article_data(article_data.__dict__)
+                        
+                        # Log security event if data was sanitized
+                        if (sanitized_data['title'] != article_data.title or 
+                            sanitized_data['content'] != article_data.content or 
+                            sanitized_data['url'] != article_data.url):
+                            SecurityAuditor.log_security_event(
+                                "article_sanitization",
+                                {"source": article_data.source, "url": article_data.url},
+                                "info"
+                            )
+                    except SecurityError as e:
+                        logger.error(f"Security validation failed for article from {scraper_name}: {e}")
+                        continue  # Skip malicious articles
+                    
                     # Use atomic transaction dla data integrity
                     with transaction.atomic():
                         # Fast path: check URL-based duplicates first
-                        if NewsArticle.objects.filter(url=article_data.url).exists():
+                        if NewsArticle.objects.filter(url=sanitized_data['url']).exists():
+                            url_duplicates += 1
                             continue  # Skip existing articles
                         
-                        # Create new NewsArticle object
+                        # Create new NewsArticle object z sanitized data
                         article = NewsArticle(
-                            title=article_data.title[:500],  # Truncate dla DB constraints
-                            content=article_data.content,
-                            url=article_data.url,
-                            source=article_data.source,
-                            published_date=article_data.published_date or timezone.now(),
+                            title=sanitized_data['title'][:500],  # Truncate dla DB constraints
+                            content=sanitized_data['content'],
+                            url=sanitized_data['url'],
+                            source=sanitized_data['source'],
+                            published_date=sanitized_data.get('published_date') or timezone.now(),
                         )
                         article.save()  # Triggers automatic content_hash generation
                         
@@ -242,6 +267,8 @@ class NewsOrchestrationService:
                         # Count only truly unique articles
                         if not is_duplicate:
                             new_articles_count += 1
+                        else:
+                            content_duplicates += 1
                         
                         logger.debug(f"Processed article: {article.title}")
                 
@@ -249,6 +276,12 @@ class NewsOrchestrationService:
                     # Log individual article failures ale continue processing
                     logger.error(f"Error processing article {article_data.title}: {e}")
                     continue
+            
+            # Summary logging dla source
+            total_processed = len(articles_data)
+            logger.info(f"Source '{scraper_name}' summary: {total_processed} articles found, "
+                       f"{new_articles_count} unique, {url_duplicates} URL duplicates, "
+                       f"{content_duplicates} content duplicates")
             
             return new_articles_count
         
