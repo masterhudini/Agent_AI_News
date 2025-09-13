@@ -4,22 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="97431905-4862-467f-9bfe-b3887cbfe1a2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+    <list default="true" id="97431905-4862-467f-9bfe-b3887cbfe1a2" name="Changes" comment="CyberSec added">
       <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/core/containers.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/core/containers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SETUP.md" beforeDir="false" afterPath="$PROJECT_DIR$/SETUP.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ai_news/ai_news/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/deduplication.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/deduplication.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/langchain_chains.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/langchain_chains.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/management/commands/generate_summary.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/management/commands/generate_summary.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/management/commands/scrape_news.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/management/commands/scrape_news.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/news_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/news_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/parsers/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/parsers/base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/parsers/hackernews_scraper.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/parsers/hackernews_scraper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/pipeline_runner.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/pipeline_runner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/src/summarization.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/src/summarization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_news/ai_news/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_news/ai_news/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,6 +53,27 @@
       <option name="presentableId" value="Default" />
       <updated>1757526794721</updated>
     </task>
+    <task id="LOCAL-00001" summary="CyberSec added">
+      <option name="closed" value="true" />
+      <created>1757700730646</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1757700730646</updated>
+    </task>
+    <task id="LOCAL-00002" summary="CyberSec added">
+      <option name="closed" value="true" />
+      <created>1757700740052</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1757700740052</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="CyberSec added" />
+    <option name="LAST_COMMIT_MESSAGE" value="CyberSec added" />
   </component>
 </project>

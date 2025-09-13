@@ -173,7 +173,7 @@ python manage.py news_stats --cleanup --cleanup-days 30
 python manage.py check --deploy
 ```
 
-### **🌐 Web Interface**
+### **🌐 Web Interface & REST API**
 
 ```bash
 # Start development server
@@ -181,8 +181,37 @@ python manage.py runserver
 
 # Access admin interface
 # http://localhost:8000/admin/
+```
 
-# API endpoints available for integration
+#### **🚀 REST API Endpoints**
+
+The application provides a secure, production-ready REST API built with Django REST Framework:
+
+| Endpoint | Method | Description | Features |
+|----------|--------|-------------|----------|
+| `/api/v1/` | GET | API root - available endpoints | Rate limiting, caching |
+| `/api/v1/summaries/latest/` | GET | Latest news summary | Security sanitization |
+| `/api/v1/summaries/` | GET | List all summaries (paginated) | Filtering, pagination |
+| `/api/v1/summaries/{id}/` | GET | Specific summary detail | Comprehensive metadata |
+| `/api/v1/status/` | GET | System health check | Performance metrics |
+
+**API Features:**
+- **Security**: Rate limiting (100/hour), input sanitization, security headers
+- **Performance**: Response caching, efficient queries with prefetch_related
+- **Monitoring**: Security event logging, request tracking
+- **Standards**: RESTful design, consistent JSON responses with metadata
+
+**Example Usage:**
+```bash
+# Get latest summary
+curl -X GET "http://localhost:8000/api/v1/summaries/latest/" \
+     -H "Content-Type: application/json"
+
+# Check system status  
+curl -X GET "http://localhost:8000/api/v1/status/"
+
+# List all summaries with pagination
+curl -X GET "http://localhost:8000/api/v1/summaries/"
 ```
 
 ## Architecture
@@ -326,7 +355,9 @@ result = orchestrator.create_intelligent_blog_post("AI News", articles)
 ## Dependencies
 
 ### Core Dependencies
-- Django 5.2.6
+- Django 5.0.8
+- Django REST Framework 3.15.2 (API endpoints)
+- django-filter 24.3 (API filtering)
 - requests, beautifulsoup4, feedparser (scraping)
 - sentence-transformers, qdrant-client (deduplication)
 - transformers, openai (summarization)

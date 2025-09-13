@@ -1,11 +1,10 @@
 """
-URL configuration for ai_news project with Django REST Framework API
+URL configuration for AI News REST API endpoints
+Uses Django REST Framework with proper class-based views
 """
-from django.contrib import admin
 from django.urls import path
 
-# Import API views directly
-from .api_views import (
+from ai_news.ai_news.api_views import (
     LatestSummaryAPIView,
     SummaryListAPIView, 
     SummaryDetailAPIView,
@@ -13,14 +12,17 @@ from .api_views import (
     api_root
 )
 
+# DRF API URL patterns with versioning
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    
-    # API v1 endpoints
+    # API v1 root
     path('api/v1/', api_root, name='api_root'),
+    
+    # Summary endpoints
     path('api/v1/summaries/latest/', LatestSummaryAPIView.as_view(), name='api_latest_summary'),
     path('api/v1/summaries/', SummaryListAPIView.as_view(), name='api_summary_list'),
     path('api/v1/summaries/<int:summary_id>/', SummaryDetailAPIView.as_view(), name='api_summary_detail'),
+    
+    # System status
     path('api/v1/status/', SystemStatusAPIView.as_view(), name='api_status'),
     
     # Convenience endpoints without versioning (backwards compatibility)

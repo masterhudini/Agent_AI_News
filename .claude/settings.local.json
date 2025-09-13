@@ -9,7 +9,11 @@
       "Bash(find:*)",
       "Bash(python:*)",
       "Bash(pip install:*)",
-      "Bash(set)"
+      "Bash(set)",
+      "Bash(curl:*)",
+      "Bash(for i in {1..5})",
+      "Bash(do echo \"Request $i:\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

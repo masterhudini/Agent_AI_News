@@ -106,7 +106,36 @@ cd ai_news
 python manage.py runserver
 ```
 
-### 3.2 Test scraperów
+### 3.2 Dostęp do REST API
+
+Po uruchomieniu serwera, dostępne są następujące endpointy:
+
+**API Endpoints:**
+- `http://localhost:8000/api/v1/` - Root API (informacje o dostępnych endpointach)
+- `http://localhost:8000/api/v1/summaries/latest/` - Najnowsze podsumowanie
+- `http://localhost:8000/api/v1/summaries/` - Lista wszystkich podsumowań (z paginacją)
+- `http://localhost:8000/api/v1/summaries/{id}/` - Szczegóły konkretnego podsumowania  
+- `http://localhost:8000/api/v1/status/` - Status systemu i statystyki
+
+**Funkcje API:**
+- **Bezpieczeństwo**: Rate limiting (100/godz), sanityzacja inputu, security headers
+- **Wydajność**: Cache response'ów, optymalizowane zapytania DB
+- **Monitorowanie**: Logowanie security eventów, tracking requestów
+- **Standardy**: RESTful design, spójne JSON odpowiedzi z metadata
+
+**Testowanie API:**
+```bash
+# Sprawdź najnowsze podsumowanie
+curl -X GET "http://localhost:8000/api/v1/summaries/latest/"
+
+# Status systemu
+curl -X GET "http://localhost:8000/api/v1/status/"
+
+# Lista podsumowań
+curl -X GET "http://localhost:8000/api/v1/summaries/"
+```
+
+### 3.3 Test scraperów
 ```bash
 # Lista dostępnych scraperów
 python manage.py scrape_news --list-sources
